@@ -1,0 +1,3 @@
+C:/Users/Apoll/KMU2K24/ADV/design pattern/cmake-build-debug/CMakeFiles/design_pattern.dir
+C:/Users/Apoll/KMU2K24/ADV/design pattern/cmake-build-debug/CMakeFiles/edit_cache.dir
+C:/Users/Apoll/KMU2K24/ADV/design pattern/cmake-build-debug/CMakeFiles/rebuild_cache.dir

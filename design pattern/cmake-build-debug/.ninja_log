@@ -1,0 +1,14 @@
+# ninja log v5
+4	625	7706126440201720	CMakeFiles/design_pattern.dir/main.cpp.obj	4cd1fef8bff1a6aa
+9	367	7699903771929068	CMakeFiles/design_pattern.dir/Square.cpp.obj	81fb77e804e30731
+8	406	7699894141182674	CMakeFiles/design_pattern.dir/ConfigManager.cpp.obj	87f7c642d7d9c024
+363	484	7706127680727027	design_pattern.exe	129d10e74ae14732
+1	174	7706135388890095	build.ninja	cfdd286dd48c8618
+6	390	7699903772150928	CMakeFiles/design_pattern.dir/ShapeFactory.cpp.obj	2fe90e219ecad916
+12	366	7699903771919693	CMakeFiles/design_pattern.dir/CIrcle.cpp.obj	4084b4f8afa4cc41
+2	362	7706127679569407	CMakeFiles/design_pattern.dir/QuickSort.cpp.obj	c5f84bb0e0bf068
+13	435	7706126438304094	CMakeFiles/design_pattern.dir/BubbleSort.cpp.obj	50cc23cf810b6c0e
+10	386	7706145951915761	CMakeFiles/design_pattern.dir/File.cpp.obj	9c5cfd29647b7179
+7	517	7706145953228717	CMakeFiles/design_pattern.dir/Directory.cpp.obj	f00cf7df605e6ce8
+2	570	7706146208879635	CMakeFiles/design_pattern.dir/main.cpp.obj	4cd1fef8bff1a6aa
+570	719	7706146210332046	design_pattern.exe	b69fe255e957855e
