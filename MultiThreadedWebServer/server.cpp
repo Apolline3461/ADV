@@ -1,66 +1,55 @@
-#include <iostream>
-#include <thread>
-#include <vector>
-#include <mutex>
-#include <winsock2.h>
-#pragma comment(lib, "ws2_32.lib")
+#include "server.hpp"
 
-void handle_client(SOCKET client_socket);
+namespace WebServer {
 
-int main() {
-    SOCKET server_fd;
-    sockaddr_in address{};
-    int addrlen = sizeof(address);
-
-    WSADATA wsaData;
-    if (WSAStartup(MAKEWORD(2,2), &wsaData) != 0) {
-        std::cerr << "WSAStartup failed" << std::endl;
-        return 1;
+    bool initialize_winsock() {
+        std::cout << "init winsock" << std::endl;
+        WSADATA wsaData;
+        return WSAStartup(MAKEWORD(2,2), &wsaData) == 0;
     }
 
-// Creating socket file descriptor
-    if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
-        perror("socket failed");
-        WSACleanup();
-        exit(EXIT_FAILURE);
-    }
-// Forcefully attaching socket to the port 8080
-    int opt = 1;
-    if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR,(char*) &opt, sizeof(opt))) {
-        perror("setsockopt");
-        WSACleanup();
-        exit(EXIT_FAILURE);
-    }
-    address.sin_family = AF_INET;
-    address.sin_addr.s_addr = INADDR_ANY;
-    address.sin_port = htons(8080);
-// Binding the socket to the port
-    if (bind(server_fd, (struct sockaddr*)&address, sizeof(address))
-        < 0) {
-        perror("bind failed");
-        closesocket(server_fd);
-        WSACleanup();
-        exit(EXIT_FAILURE);
-    }
-// Start listening
-    if (listen(server_fd, SOMAXCONN) == SOCKET_ERROR) {
-        perror("listen failed");
-        closesocket(server_fd);
-        WSACleanup();
-        exit(EXIT_FAILURE);
-    }
+    SOCKET create_server_socket(int port) {
+        SOCKET svr_socket = socket(AF_INET, SOCK_STREAM, 0);
 
-    std::vector<std::thread> threads;
-    while (true) {
-        SOCKET newClient = accept(server_fd, (struct sockaddr*)&address, &addrlen);
-        if ( newClient == INVALID_SOCKET) {
-            perror("accept Failed");
-            break;
+        std::cout << "create svr" << std::endl;
+        if (svr_socket == INVALID_SOCKET) return INVALID_SOCKET;
+        int opt = 1;
+        std::cout << "Set socket" << std::endl;
+        if (setsockopt(svr_socket, SOL_SOCKET, SO_REUSEADDR,(char*) &opt, sizeof(opt))) {
+            perror("set sockopt");
+            WSACleanup();
+            exit(EXIT_FAILURE);
         }
-        threads.emplace_back(handle_client, newClient);
+        sockaddr_in address{};
+
+        address.sin_family = AF_INET;
+        address.sin_addr.s_addr = INADDR_ANY;
+        address.sin_port = htons(port);
+
+        std::cout << "bind socket" << std::endl;
+        if (bind(svr_socket, (struct sockaddr*)&address, sizeof(address)) < 0 || listen(svr_socket, SOMAXCONN) == SOCKET_ERROR) {
+            perror("bind failed");
+            closesocket(svr_socket);
+            return INVALID_SOCKET;
+        }
+        return svr_socket;
     }
-    for (auto& t : threads) t.join();
-    closesocket(server_fd);
-    WSACleanup();
-    return 0;
+
+    void run_server(SOCKET server_socket) {
+        sockaddr_in client_add{};
+        int add_len = sizeof(client_add);
+        std::vector<std::thread> threads;
+
+        std::cout << "run svr" << std::endl;
+
+        while (true) {
+            SOCKET new_cl_socket = accept(server_socket, (struct sockaddr*)&client_add, &add_len);
+            if (new_cl_socket == INVALID_SOCKET) {
+                perror("new client invalid socket");
+                break;
+            }
+            threads.emplace_back(handle_client, new_cl_socket);
+        }
+        for (auto& t : threads) t.join();
+    }
 }

@@ -2,21 +2,15 @@
 // Created by Apoll on 14/06/2025.
 //
 
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <thread>
-#include <mutex>
-#include <winsock2.h>
-#pragma comment(lib, "ws2_32.lib")
-
+#include "server.hpp"
 std::mutex log_mutex;
-void log_request(const std::string& message) {
+
+void WebServer::log_request(const std::string& message) {
     std::lock_guard<std::mutex> lock(log_mutex);
     std::cout << message << std::endl;
 }
 
-void handle_client(SOCKET client_socket) {
+void WebServer::handle_client(SOCKET client_socket) {
     char buffer[1024] = {0};
     recv(client_socket, buffer, 1024, 0);
     std::string request(buffer);
