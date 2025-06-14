@@ -5,6 +5,8 @@
 #include "server.hpp"
 std::mutex log_mutex;
 std::string WebServer::www_root = "../www";
+int WebServer::port = 8080;
+int WebServer::max_thr = 4;
 
 void WebServer::log_request(const std::string& message) {
     std::lock_guard<std::mutex> lock(log_mutex);
@@ -71,4 +73,23 @@ void WebServer::handle_client(SOCKET client_socket) {
         log_request(std::string("500 Internal Server Error: ") + e.what());
     }
     closesocket(client_socket);
+}
+
+void WebServer::load_conf(const std::string &conf_path) {
+
+    std::ifstream file(conf_path);
+    if (!file) {
+        std::cerr << "Could not open config file, using default settings." << std::endl;
+        return;
+    }
+
+    try {
+        nlohmann::json config;
+        file >> config;
+        if (config.contains("port")) port = config["port"];
+        if (config.contains("www_root")) www_root = config["www_root"];
+        if (config.contains("max_threads")) max_thr = config["max_threads"];
+    } catch (const std::exception& e) {
+        std::cerr << "Error parsing config file: " << e.what() << std::endl;
+    }
 }

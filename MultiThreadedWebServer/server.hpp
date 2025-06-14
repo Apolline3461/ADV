@@ -13,10 +13,16 @@
 #include <winsock2.h>
 #pragma comment(lib, "ws2_32.lib")
 
+#include <nlohmann/json.hpp>
+using json = nlohmann::json;
+
 class WebServer {
 public:
+    static int port;
+    static int max_thr;
     static std::string www_root;
 
+    static void load_conf(const std::string &conf_path = "config.json");
     static bool initialize_winsock();
     static SOCKET create_server_socket(int port);
     static void run_server(SOCKET server_socket);

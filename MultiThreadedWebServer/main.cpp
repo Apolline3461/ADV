@@ -5,10 +5,11 @@
 #include "server.hpp"
 
 int main() {
+    WebServer::load_conf("../config.json");
 
     if (!WebServer::initialize_winsock()) return EXIT_FAILURE;
 
-    SOCKET server_socket = WebServer::create_server_socket(8080);
+    SOCKET server_socket = WebServer::create_server_socket(WebServer::port);
     if (server_socket == INVALID_SOCKET) {
         WSACleanup();
         return EXIT_FAILURE;

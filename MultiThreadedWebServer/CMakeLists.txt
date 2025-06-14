@@ -7,4 +7,7 @@ add_executable(MultiThreadedWebServer server.cpp
         client.cpp
         server.hpp
         main.cpp)
+
+target_include_directories(MultiThreadedWebServer PRIVATE ${CMAKE_SOURCE_DIR}/include)
+
 target_link_libraries(MultiThreadedWebServer ws2_32)

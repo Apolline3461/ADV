@@ -1,0 +1,5 @@
+{
+  "port": 4242,
+  "www_root": "../www",
+  "max_threads": 4
+}
