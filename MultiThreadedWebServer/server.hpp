@@ -13,11 +13,18 @@
 #include <winsock2.h>
 #pragma comment(lib, "ws2_32.lib")
 
-namespace WebServer {
+class WebServer {
+public:
+    static std::string www_root;
 
-    bool initialize_winsock();
-    SOCKET create_server_socket(int port);
-    void run_server(SOCKET server_socket);
-    void log_request(const std::string &message);
-    void handle_client(SOCKET client_socket);
-}
+    static bool initialize_winsock();
+    static SOCKET create_server_socket(int port);
+    static void run_server(SOCKET server_socket);
+    static void handle_client(SOCKET client_socket);
+
+private:
+
+    static void log_request(const std::string &message);
+    static std::string read_file_to_string(const std::string& full_path);
+    static std::string build_http_response(int status_code, const std::string& content);
+};
