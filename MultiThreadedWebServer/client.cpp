@@ -53,6 +53,7 @@ void WebServer::handle_client(SOCKET client_socket) {
 
         if (!file_content.empty()) {
             response = build_http_response(200, file_content);
+            log_request("200 OK: " + path);
         } else {
             std::string not_found_content = read_file_to_string(www_root + "/404.html");
             if (!not_found_content.empty()) {
@@ -60,6 +61,7 @@ void WebServer::handle_client(SOCKET client_socket) {
             } else {
                 response = build_http_response(404, "");
             }
+            log_request("404 Not Found: " + path);
         }
         send(client_socket, response.c_str(), response.size(), 0);
     } catch (const std::exception &e) {
