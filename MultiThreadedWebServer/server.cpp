@@ -1,4 +1,5 @@
 #include "server.hpp"
+#include "thread_pool.hpp"
 
 
 bool WebServer::initialize_winsock() {
@@ -37,8 +38,8 @@ SOCKET WebServer::create_server_socket(int port) {
 void WebServer::run_server(SOCKET server_socket) {
     sockaddr_in client_add{};
     int add_len = sizeof(client_add);
-    std::vector<std::thread> threads;
 
+    ThreadPool pool(WebServer::max_thr);
     std::cout << "run svr" << std::endl;
 
     while (true) {
@@ -47,7 +48,11 @@ void WebServer::run_server(SOCKET server_socket) {
             perror("new client invalid socket");
             break;
         }
-        threads.emplace_back(WebServer::handle_client, new_cl_socket);
+        pool.enqueue([this, new_cl_socket]() {
+            this->handle_client(new_cl_socket);
+        });
+        std::cout << "[ThreadPool] Actifs : " << ThreadPool::active_clients
+                  << " | En attente : " << ThreadPool::queued_tasks << std::endl;
+
     }
-    for (auto& t : threads) t.join();
 }

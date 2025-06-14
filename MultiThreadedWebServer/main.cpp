@@ -5,6 +5,7 @@
 #include "server.hpp"
 
 int main() {
+    WebServer server;
     WebServer::load_conf("../config.json");
 
     if (!WebServer::initialize_winsock()) return EXIT_FAILURE;
@@ -15,7 +16,7 @@ int main() {
         return EXIT_FAILURE;
     }
 
-    WebServer::run_server(server_socket);
+    server.run_server(server_socket);
 
     closesocket(server_socket);
     WSACleanup();

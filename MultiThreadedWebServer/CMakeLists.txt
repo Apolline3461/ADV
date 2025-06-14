@@ -5,8 +5,10 @@ set(CMAKE_CXX_STANDARD 17)
 
 add_executable(MultiThreadedWebServer server.cpp
         client.cpp
-        server.hpp
-        main.cpp)
+        include/server.hpp
+        main.cpp
+        include/thread_pool.hpp
+        thread_pool.cpp)
 
 target_include_directories(MultiThreadedWebServer PRIVATE ${CMAKE_SOURCE_DIR}/include)
 
