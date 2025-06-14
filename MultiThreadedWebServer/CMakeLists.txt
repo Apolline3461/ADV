@@ -3,5 +3,6 @@ project(MultiThreadedWebServer)
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_executable(MultiThreadedWebServer main.cpp)
+add_executable(MultiThreadedWebServer server.cpp
+        client.cpp)
 target_link_libraries(MultiThreadedWebServer ws2_32)

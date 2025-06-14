@@ -5,11 +5,7 @@
 #include <winsock2.h>
 #pragma comment(lib, "ws2_32.lib")
 
-void handle_client(int client_socket){
-    const char* msg = "Welcome from server!\n";
-    send(client_socket, msg, strlen(msg), 0);
-    closesocket(client_socket);
-}
+void handle_client(SOCKET client_socket);
 
 int main() {
     SOCKET server_fd;
