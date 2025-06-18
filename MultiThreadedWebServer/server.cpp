@@ -1,6 +1,24 @@
 #include "server.hpp"
 #include "thread_pool.hpp"
 
+SSL_CTX* WebServer::create_ssl_context() {
+    const SSL_METHOD* method = TLS_server_method();
+    SSL_CTX* ctx = SSL_CTX_new(method);
+
+    if (!ctx) {
+        ERR_print_errors_fp(stderr);
+        exit(EXIT_FAILURE);
+    }
+
+    // Charge cert et key
+    if (SSL_CTX_use_certificate_file(ctx, "../certs/cert.pem", SSL_FILETYPE_PEM) <= 0 ||
+        SSL_CTX_use_PrivateKey_file(ctx, "../certs/key.pem", SSL_FILETYPE_PEM) <= 0) {
+        ERR_print_errors_fp(stderr);
+        exit(EXIT_FAILURE);
+    }
+
+    return ctx;
+}
 
 bool WebServer::initialize_winsock() {
     std::cout << "init winsock" << std::endl;
@@ -42,17 +60,34 @@ void WebServer::run_server(SOCKET server_socket) {
     ThreadPool pool(WebServer::max_thr);
     std::cout << "run svr" << std::endl;
 
+    SSL_CTX* ctx = create_ssl_context();
+
     while (true) {
         SOCKET new_cl_socket = accept(server_socket, (struct sockaddr*)&client_add, &add_len);
         if (new_cl_socket == INVALID_SOCKET) {
             perror("new client invalid socket");
             break;
         }
-        pool.enqueue([this, new_cl_socket]() {
-            this->handle_client(new_cl_socket);
+        pool.enqueue([this, new_cl_socket, &ctx]() {
+            SSL* ssl = SSL_new(ctx);
+            SSL_set_fd(ssl, new_cl_socket);
+
+            if (SSL_accept(ssl) <= 0) {
+                ERR_print_errors_fp(stderr);
+                SSL_shutdown(ssl);
+                SSL_free(ssl);
+                closesocket(new_cl_socket);
+                return;
+            }
+
+            this->handle_client_ssl(ssl, new_cl_socket);
+
+            SSL_shutdown(ssl);
+            SSL_free(ssl);
         });
         std::cout << "[ThreadPool] Actifs : " << ThreadPool::active_clients
                   << " | En attente : " << ThreadPool::queued_tasks << std::endl;
 
     }
+    SSL_CTX_free(ctx);
 }

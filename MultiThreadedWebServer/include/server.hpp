@@ -10,6 +10,8 @@
 #include <fstream>
 #include <sstream>
 #include <mutex>
+#include <openssl/ssl.h>
+#include <openssl/err.h>
 #include <winsock2.h>
 #pragma comment(lib, "ws2_32.lib")
 
@@ -30,6 +32,8 @@ public:
 
 private:
 
+    SSL_CTX* create_ssl_context();
+    void handle_client_ssl(SSL* ssl, SOCKET client_socket);
     static void log_request(const std::string &message);
     static std::string read_file_to_string(const std::string& full_path);
     static std::string build_http_response(int status_code, const std::string& content);

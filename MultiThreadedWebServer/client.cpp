@@ -75,6 +75,43 @@ void WebServer::handle_client(SOCKET client_socket) {
     closesocket(client_socket);
 }
 
+void WebServer::handle_client_ssl(SSL* ssl, SOCKET client_socket) {
+    try {
+        char buffer[1024] = {0};
+        int received = SSL_read(ssl, buffer, sizeof(buffer));
+        if (received <= 0) return;
+
+        std::string request(buffer);
+        std::string method, path;
+        std::istringstream request_stream(request);
+        request_stream >> method >> path;
+
+        log_request("Received HTTPS request: " + method + " " + path);
+
+        if (path == "/") path = "/index.html";
+        std::string file_content = read_file_to_string(www_root + path);
+        std::string response;
+
+        if (!file_content.empty()) {
+            response = build_http_response(200, file_content);
+            log_request("200 OK: " + path);
+        } else {
+            std::string not_found_content = read_file_to_string(www_root + "/404.html");
+            response = build_http_response(404, not_found_content);
+            log_request("404 Not Found: " + path);
+        }
+
+        SSL_write(ssl, response.c_str(), response.size());
+    } catch (const std::exception &e) {
+        std::string content = read_file_to_string(www_root + "/500.html");
+        std::string response = build_http_response(500, content);
+        SSL_write(ssl, response.c_str(), response.size());
+        log_request(std::string("500 Internal Server Error: ") + e.what());
+    }
+    closesocket(client_socket);
+}
+
+
 void WebServer::load_conf(const std::string &conf_path) {
 
     std::ifstream file(conf_path);
